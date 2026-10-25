@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   build-apk:
-    name: Build debug APK
+    name: Build production APK
     runs-on: ubuntu-latest
 
     steps:
@@ -26,11 +26,14 @@ jobs:
           java-version: '17'
           cache: gradle
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Install Android build dependencies
-        run: sdkmanager --install "platforms;android-37" "build-tools;35.0.0" "cmake;3.22.1"
+        run: |
+          SDKMANAGER="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="${ANDROID_HOME}/tools/bin/sdkmanager"
+          fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" --install "platforms;android-37" "build-tools;35.0.0" "cmake;3.22.1"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
